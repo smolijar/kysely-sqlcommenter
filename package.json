@@ -1,0 +1,33 @@
+{
+  "name": "kysely-sqlcommenter",
+  "version": "0.0.0",
+  "type": "module",
+  "author": "Jaroslav Šmolík <smolijar@gmail.com>",
+  "license": "MIT",
+  "repository": "smolijar/kysely-sqlcommenter",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/kysely-sqlcommenter.umd.cjs",
+  "module": "./dist/kysely-sqlcommenter.js",
+  "types": "./dist/main.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/kysely-sqlcommenter.js",
+      "require": "./dist/kysely-sqlcommenter.umd.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.7",
+    "kysely": "^0.27.2",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8",
+    "vite-plugin-dts": "^3.7.2",
+    "vitest": "^1.2.2"
+  }
+}
