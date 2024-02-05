@@ -1,0 +1,25 @@
+import { Generated, Kysely, PostgresDialect } from 'kysely'
+import { KyselySqlCommenterPlugin } from 'kysely-sqlcommenter'
+
+interface DB {
+  person: {
+    id: Generated<string>
+    first_name: string
+  }
+}
+
+const db = new Kysely<DB>({
+  dialect: new PostgresDialect({
+    pool: null as any,
+  }),
+  plugins: [new KyselySqlCommenterPlugin()],
+})
+
+console.log(
+  db
+    .selectFrom('person')
+    .select(['id', 'first_name'])
+    .where('id', '=', '1')
+    .sqlCommenter({ controller: 'person', action: 'get' })
+    .compile()
+)
