@@ -25,3 +25,12 @@ export function serializeValue(value: string) {
 export function serializeKey(value: string) {
   return encodeURIComponent(value)
 }
+
+export type SqlComment = {
+  [key: string]: string | undefined
+  tracestate?: string
+  traceparent?: string
+  framework?: string
+  action?: string
+  controller?: string
+}

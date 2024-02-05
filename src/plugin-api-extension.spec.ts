@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest'
 import { Generated, Kysely, PostgresDialect } from 'kysely'
 import { KyselySqlCommenterPlugin } from './main'
 
-describe('test', () => {
+describe('api extension', () => {
   it('noop', async () => {
     const person = await db
       .selectFrom('person')
