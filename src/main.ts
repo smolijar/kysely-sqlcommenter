@@ -11,8 +11,21 @@ import { SqlComment } from './sqlcommenter'
 import { SqlCommenterFragmentExpression, sqlCommenter } from './api-extension'
 
 export class KyselySqlCommenterPlugin implements KyselyPlugin {
+  #apiExtensionEnabled = false
+
+  enableApiExtension() {
+    this.#apiExtensionEnabled = true
+    // Class not exported, see https://github.com/kysely-org/kysely/pull/721#issuecomment-1745328785
+    // @ts-ignore: Patch SelectQueryBuilder
+    createSelectQueryBuilder().__proto__.sqlCommenter = sqlCommenter
+    return this
+  }
+
   transformQuery({ node }: PluginTransformQueryArgs): RootOperationNode {
-    return SqlCommenterFragmentExpression.processFragments(node)
+    if (this.#apiExtensionEnabled) {
+      return SqlCommenterFragmentExpression.processFragments(node)
+    }
+    return node
   }
   async transformResult(
     args: PluginTransformResultArgs
@@ -27,7 +40,3 @@ declare module 'kysely' {
     sqlCommenter(comment: SqlComment): this
   }
 }
-
-// Class not exported, see https://github.com/kysely-org/kysely/pull/721#issuecomment-1745328785
-// @ts-ignore: Patch SelectQueryBuilder
-createSelectQueryBuilder().__proto__.sqlCommenter = sqlCommenter
