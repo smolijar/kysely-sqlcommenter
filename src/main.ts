@@ -6,12 +6,14 @@ import {
   QueryResult,
   UnknownRow,
   RootOperationNode,
+  sql,
 } from 'kysely'
-import { SqlComment } from './sqlcommenter'
+import { SqlComment, SqlCommenter } from './sqlcommenter'
 import { SqlCommenterFragmentExpression, sqlCommenter } from './api-extension'
 
 export class KyselySqlCommenterPlugin implements KyselyPlugin {
   #apiExtensionEnabled = false
+  #getComment: undefined | (() => SqlComment)
 
   enableApiExtension() {
     this.#apiExtensionEnabled = true
@@ -21,7 +23,24 @@ export class KyselySqlCommenterPlugin implements KyselyPlugin {
     return this
   }
 
+  enableALC(getComment: () => SqlComment) {
+    this.#getComment = getComment
+    return this
+  }
+
   transformQuery({ node }: PluginTransformQueryArgs): RootOperationNode {
+    if (this.#getComment && node.kind === 'SelectQueryNode') {
+      const sqlComment = new SqlCommenter(this.#getComment()).serialize()
+      if (sqlComment) {
+        return {
+          ...node,
+          endModifiers: [
+            ...(node.endModifiers ?? []),
+            sql`${sql.raw(sqlComment)}`.toOperationNode() as any,
+          ],
+        }
+      }
+    }
     if (this.#apiExtensionEnabled) {
       return SqlCommenterFragmentExpression.processFragments(node)
     }
