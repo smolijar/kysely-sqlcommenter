@@ -34,3 +34,5 @@ export type SqlCommentLike = {
   action?: string
   controller?: string
 }
+
+export type MaybeSqlCommentLike = SqlCommentLike | undefined | void | null

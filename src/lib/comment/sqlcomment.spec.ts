@@ -18,6 +18,7 @@ describe(`${SqlComment.name}`, () => {
   it('empty', () => {
     expect(new SqlComment({}).serialize()).to.equal('')
     expect(new SqlComment().serialize()).to.equal('')
+    expect(undefined).to.equal('')
   })
   it('merge contains both and overrides', () => {
     expect(

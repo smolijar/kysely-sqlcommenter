@@ -1,8 +1,8 @@
 import { RootOperationNode, sql } from 'kysely'
-import { SqlComment, SqlCommentLike } from '../comment/sqlcomment'
+import { MaybeSqlCommentLike, SqlComment } from '../comment/sqlcomment'
 import { KyselySqlCommenterPluginMode } from '../plugin'
 
-export type SqlCommentCallback = () => SqlCommentLike
+export type SqlCommentCallback = () => MaybeSqlCommentLike
 
 export class CallbackMode implements KyselySqlCommenterPluginMode {
   #getComment: SqlCommentCallback
@@ -11,7 +11,9 @@ export class CallbackMode implements KyselySqlCommenterPluginMode {
   }
   transformNode(node: RootOperationNode): RootOperationNode {
     if (node.kind === 'SelectQueryNode') {
-      const sqlComment = new SqlComment(this.#getComment()).serialize()
+      const sqlComment = new SqlComment(
+        this.#getComment() ?? undefined
+      ).serialize()
       if (sqlComment) {
         return {
           ...node,

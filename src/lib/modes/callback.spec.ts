@@ -74,7 +74,5 @@ const db = new Kysely<DB>({
   dialect: new PostgresDialect({
     pool: null as any,
   }),
-  plugins: [
-    new KyselySqlCommenterPlugin(() => asyncLocalStorage.getStore() ?? {}),
-  ],
+  plugins: [new KyselySqlCommenterPlugin(() => asyncLocalStorage.getStore())],
 })
