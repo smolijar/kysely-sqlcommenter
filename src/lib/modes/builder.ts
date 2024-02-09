@@ -79,3 +79,11 @@ export class BuilderMode implements KyselySqlCommenterPluginMode {
     return SqlCommenterFragmentExpression.processFragments(node)
   }
 }
+
+// Patch SelectQueryBuilder types (see https://kysely.dev/docs/recipes/extending-kysely#extending-using-module-augmentation)
+// Currently, not part of bundle due to `rollupTypes`.
+declare module 'kysely' {
+  interface SelectQueryBuilder<DB, TB extends keyof DB, O> {
+    sqlCommenter(comment: SqlCommentLike): this
+  }
+}

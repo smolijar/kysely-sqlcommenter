@@ -95,5 +95,5 @@ const db = new Kysely<DB>({
   dialect: new PostgresDialect({
     pool: null as any,
   }),
-  plugins: [new KyselySqlCommenterPlugin().enableBuilder()],
+  plugins: [new KyselySqlCommenterPlugin(() => ({})).enableBuilder()],
 })

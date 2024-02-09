@@ -75,8 +75,6 @@ const db = new Kysely<DB>({
     pool: null as any,
   }),
   plugins: [
-    new KyselySqlCommenterPlugin().enableCallback(
-      () => asyncLocalStorage.getStore() ?? {}
-    ),
+    new KyselySqlCommenterPlugin(() => asyncLocalStorage.getStore() ?? {}),
   ],
 })
