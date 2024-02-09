@@ -13,7 +13,7 @@ export default defineConfig({
   plugins: [
     dts({
       insertTypesEntry: true,
-      exclude: ['**/**/*.spec.*'],
+      exclude: ['**/**/*.spec.*', '**/**/_.*'],
       rollupTypes: true,
     }),
   ],

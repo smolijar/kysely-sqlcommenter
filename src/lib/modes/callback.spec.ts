@@ -1,15 +1,82 @@
 import { describe, it, expect } from 'vitest'
 
-import { Generated, Kysely, PostgresDialect } from 'kysely'
 import { KyselySqlCommenterPlugin } from '../../main'
 import { AsyncLocalStorage } from 'async_hooks'
 import { SqlCommentLike } from '../comment/sqlcomment'
 import { createServer, get } from 'http'
-
-const asyncLocalStorage = new AsyncLocalStorage<SqlCommentLike>()
+import { testingKysely } from './_test'
 
 describe('callback', () => {
+  it('noop', async () => {
+    const db = testingKysely(new KyselySqlCommenterPlugin(() => {}))
+    const { sql, parameters } = db
+      .selectFrom('person')
+      .select(['id', 'first_name'])
+      .where('id', '=', '1')
+      .compile()
+    expect(sql).toBe(`select "id", "first_name" from "person" where "id" = $1`)
+    expect(parameters).toStrictEqual(['1'])
+  })
+  it('select', async () => {
+    const db = testingKysely(
+      new KyselySqlCommenterPlugin(() => ({
+        controller: 'person',
+        action: 'get',
+      }))
+    )
+    const { sql } = db
+      .selectFrom('person')
+      .select(['id', 'first_name'])
+      .where('id', '=', '1')
+      .compile()
+    expect(sql).toBe(
+      `select "id", "first_name" from "person" where "id" = $1 /*action='get',controller='person'*/`
+    )
+  })
+  it.skip('update', async () => {
+    // if (node.kind === 'UpdateQueryNode') {
+    //   const sqlComment = new SqlComment(
+    //     this.#getComment() ?? undefined
+    //   ).serialize()
+    //   if (sqlComment) {
+    //     const returning = {
+    //       ...(node.returning ?? {
+    //         kind: 'ReturningNode',
+    //         selections: [],
+    //       }),
+    //     }
+    //     return {
+    //       ...node,
+    //       returning: {
+    //         ...returning,
+    //         selections: [
+    //           ...returning.selections,
+    //           sql`${sql.raw(sqlComment)}`.toOperationNode() as any,
+    //         ],
+    //       },
+    //     }
+    //   }
+    // }
+    const db = testingKysely(
+      new KyselySqlCommenterPlugin(() => ({
+        controller: 'person',
+        action: 'put',
+      }))
+    )
+    const { sql } = db
+      .updateTable('person')
+      .set({ first_name: 'foo' })
+      .compile()
+    expect(sql).toBe(
+      `update "person" set "first_name" = $1 /*action='put',controller='person'*/`
+    )
+  })
   it('async local storage in http server', async () => {
+    const asyncLocalStorage = new AsyncLocalStorage<SqlCommentLike>()
+    const db = testingKysely(
+      new KyselySqlCommenterPlugin(() => asyncLocalStorage.getStore())
+    )
+
     const server = createServer((req, res) => {
       asyncLocalStorage.run({}, () => {
         const store = asyncLocalStorage.getStore()!
@@ -47,32 +114,4 @@ describe('callback', () => {
 
     await new Promise((resolve) => server.close(resolve))
   })
-})
-
-interface DB {
-  person: PersonTable
-  pet: PetTable
-}
-
-interface PersonTable {
-  id: Generated<string>
-  first_name: string
-  last_name: string | null
-  created_at: Generated<Date>
-  age: number
-}
-
-interface PetTable {
-  id: Generated<string>
-  name: string
-  owner_id: string
-  species: 'cat' | 'dog'
-  is_favorite: boolean
-}
-
-const db = new Kysely<DB>({
-  dialect: new PostgresDialect({
-    pool: null as any,
-  }),
-  plugins: [new KyselySqlCommenterPlugin(() => asyncLocalStorage.getStore())],
 })

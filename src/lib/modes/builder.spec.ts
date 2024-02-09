@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 
-import { Generated, Kysely, PostgresDialect } from 'kysely'
 import { KyselySqlCommenterPlugin } from '../../main'
+import { testingKysely } from './_test'
 
 describe('builder', () => {
   it('noop', async () => {
@@ -70,30 +70,4 @@ describe('builder', () => {
   })
 })
 
-interface DB {
-  person: PersonTable
-  pet: PetTable
-}
-
-interface PersonTable {
-  id: Generated<string>
-  first_name: string
-  last_name: string | null
-  created_at: Generated<Date>
-  age: number
-}
-
-interface PetTable {
-  id: Generated<string>
-  name: string
-  owner_id: string
-  species: 'cat' | 'dog'
-  is_favorite: boolean
-}
-
-const db = new Kysely<DB>({
-  dialect: new PostgresDialect({
-    pool: null as any,
-  }),
-  plugins: [new KyselySqlCommenterPlugin(() => {}).enableBuilder()],
-})
+const db = testingKysely(new KyselySqlCommenterPlugin(() => {}).enableBuilder())
