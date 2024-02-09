@@ -1,14 +1,14 @@
 import { describe, it, expect } from 'vitest'
 
 import { Generated, Kysely, PostgresDialect } from 'kysely'
-import { KyselySqlCommenterPlugin } from './main'
+import { KyselySqlCommenterPlugin } from '../../main'
 import { AsyncLocalStorage } from 'async_hooks'
-import { SqlComment } from './sqlcommenter'
+import { SqlCommentLike } from '../comment/sqlcomment'
 import { createServer, get } from 'http'
 
-const asyncLocalStorage = new AsyncLocalStorage<SqlComment>()
+const asyncLocalStorage = new AsyncLocalStorage<SqlCommentLike>()
 
-describe('async local storage', () => {
+describe('callback', () => {
   it('async local storage in http server', async () => {
     const server = createServer((req, res) => {
       asyncLocalStorage.run({}, () => {
@@ -75,7 +75,7 @@ const db = new Kysely<DB>({
     pool: null as any,
   }),
   plugins: [
-    new KyselySqlCommenterPlugin().enableALC(
+    new KyselySqlCommenterPlugin().enableCallback(
       () => asyncLocalStorage.getStore() ?? {}
     ),
   ],

@@ -10,7 +10,7 @@
   ],
   "main": "./dist/kysely-sqlcommenter.umd.cjs",
   "module": "./dist/kysely-sqlcommenter.js",
-  "types": "./dist/main.d.ts",
+  "types": "./dist/kysely-sqlcommenter.d.ts",
   "exports": {
     ".": {
       "import": "./dist/kysely-sqlcommenter.js",
@@ -20,7 +20,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "test": "vitest"
+    "test": "vitest",
+    "test:integration": "./integration-test/test.sh"
   },
   "devDependencies": {
     "@types/node": "^20.11.7",

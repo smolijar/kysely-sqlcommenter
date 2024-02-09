@@ -1,7 +1,7 @@
-export class SqlCommenter {
-  constructor(private record: Record<string, string | undefined> = {}) {}
+export class SqlComment {
+  constructor(private record: SqlCommentLike = {}) {}
 
-  merge(record: Record<string, string | undefined> = {}) {
+  merge(record: SqlCommentLike = {}) {
     this.record = { ...this.record, ...record }
     return this
   }
@@ -26,7 +26,7 @@ export function serializeKey(value: string) {
   return encodeURIComponent(value)
 }
 
-export type SqlComment = {
+export type SqlCommentLike = {
   [key: string]: string | undefined
   tracestate?: string
   traceparent?: string

@@ -4,12 +4,14 @@ import {
   RawNode,
   RootOperationNode,
   SelectQueryBuilder,
+  createSelectQueryBuilder,
   sql,
 } from 'kysely'
-import { SqlComment, SqlCommenter } from './sqlcommenter'
+import { SqlCommentLike, SqlComment } from '../comment/sqlcomment'
+import { KyselySqlCommenterPluginMode } from '../plugin'
 
 export class SqlCommenterFragmentExpression<T> implements Expression<T> {
-  constructor(private readonly comment: SqlComment = {}) {}
+  constructor(private readonly comment: SqlCommentLike = {}) {}
   get expressionType(): T | undefined {
     return undefined
   }
@@ -25,12 +27,14 @@ export class SqlCommenterFragmentExpression<T> implements Expression<T> {
     if (!fragment) return null
     const [, match] = fragment.match(/\/\*sqlCommenterFragment:(.*)\*\//) ?? []
     if (!match) return null
-    return JSON.parse(match) as SqlComment
+    return JSON.parse(match) as SqlCommentLike
   }
 
-  static processFragments(node: RootOperationNode) {
+  static processFragments(
+    node: RootOperationNode
+  ): any /*exported inferred type*/ {
     if (node.kind !== 'SelectQueryNode') return node
-    let sqlCommenter = new SqlCommenter()
+    let sqlCommenter = new SqlComment()
     const noTouchModifiers = []
     for (const modifier of node.endModifiers ?? []) {
       const sqlFragment: string | undefined =
@@ -59,7 +63,19 @@ export class SqlCommenterFragmentExpression<T> implements Expression<T> {
 
 export function sqlCommenter(
   this: SelectQueryBuilder<any, any, any>,
-  comment?: SqlComment
+  comment?: SqlCommentLike
 ) {
   return this.modifyEnd(new SqlCommenterFragmentExpression(comment))
+}
+
+export class BuilderMode implements KyselySqlCommenterPluginMode {
+  constructor() {
+    // Class not exported, see https://github.com/kysely-org/kysely/pull/721#issuecomment-1745328785
+    const createSelectQueryBuilderInstance = createSelectQueryBuilder
+    // @ts-ignore: Patch SelectQueryBuilder
+    createSelectQueryBuilderInstance().__proto__.sqlCommenter = sqlCommenter
+  }
+  transformNode(node: RootOperationNode): RootOperationNode {
+    return SqlCommenterFragmentExpression.processFragments(node)
+  }
 }

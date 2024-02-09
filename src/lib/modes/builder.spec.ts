@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 
 import { Generated, Kysely, PostgresDialect } from 'kysely'
-import { KyselySqlCommenterPlugin } from './main'
+import { KyselySqlCommenterPlugin } from '../../main'
 
-describe('api extension', () => {
+describe('builder', () => {
   it('noop', async () => {
     const person = await db
       .selectFrom('person')
@@ -95,5 +95,5 @@ const db = new Kysely<DB>({
   dialect: new PostgresDialect({
     pool: null as any,
   }),
-  plugins: [new KyselySqlCommenterPlugin().enableApiExtension()],
+  plugins: [new KyselySqlCommenterPlugin().enableBuilder()],
 })

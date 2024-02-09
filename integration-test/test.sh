@@ -1,7 +1,7 @@
 npm link
 rm -rf tmp;
 mkdir tmp;
-cp src/integration.ts.template tmp/main.ts;
+cp integration-test/integration.ts.template tmp/main.ts;
 cd tmp;
 npm init -y;
 npm install tsx kysely;
