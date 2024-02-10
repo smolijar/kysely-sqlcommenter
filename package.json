@@ -5,6 +5,11 @@
   "author": "Jaroslav Šmolík <smolijar@gmail.com>",
   "license": "MIT",
   "repository": "smolijar/kysely-sqlcommenter",
+  "keywords": [
+    "kysely",
+    "sqlcommenter",
+    "sql"
+  ],
   "files": [
     "dist"
   ],
