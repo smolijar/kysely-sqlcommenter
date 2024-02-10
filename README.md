@@ -62,13 +62,12 @@ See the full working example for express [here](./examples/express.ts), includin
 - [x] SqlCommenter spec tests
 - [x] Callback API + Examples with CLS
 - [ ] Builder API (not really a priority with the amount of hacking needed)
-- [ ] CI/CD
-- [ ] Query support
+- [x] CI
+- [ ] Query support (assume only DML, other are not useful)
   - [x] Select
-  - [ ] Update
-  - [ ] Insert
-  - [ ] Delete
-  - [ ] Misc
+  - [ ] Update (will be lot easier after https://github.com/kysely-org/kysely/issues/835)
+  - [ ] Insert (will be lot easier after https://github.com/kysely-org/kysely/issues/835)
+  - [ ] Delete (will be lot easier after https://github.com/kysely-org/kysely/issues/835)
 
 ## References
 
