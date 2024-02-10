@@ -1,10 +1,10 @@
 import { RootOperationNode, sql } from 'kysely'
 import { MaybeSqlCommentLike, SqlComment } from '../comment/sqlcomment'
-import { KyselySqlCommenterPluginMode } from '../plugin'
+import { SqlCommenterPluginMode } from '../plugin'
 
 export type SqlCommentCallback = () => MaybeSqlCommentLike
 
-export class CallbackMode implements KyselySqlCommenterPluginMode {
+export class CallbackMode implements SqlCommenterPluginMode {
   #getComment: SqlCommentCallback
   constructor(getComment: SqlCommentCallback) {
     this.#getComment = getComment

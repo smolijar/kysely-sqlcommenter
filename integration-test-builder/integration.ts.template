@@ -1,5 +1,5 @@
 import { Generated, Kysely, PostgresDialect } from 'kysely'
-import { KyselySqlCommenterPlugin } from 'kysely-sqlcommenter'
+import { SqlCommenterPlugin } from 'kysely-sqlcommenter'
 
 interface DB {
   person: {
@@ -12,7 +12,7 @@ const db = new Kysely<DB>({
   dialect: new PostgresDialect({
     pool: null as any,
   }),
-  plugins: [new KyselySqlCommenterPlugin().enableBuilder()],
+  plugins: [new SqlCommenterPlugin().enableBuilder()],
 })
 
 console.log(

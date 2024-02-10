@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
-import { KyselySqlCommenterPlugin } from '../../main'
+import { SqlCommenterPlugin } from '../../main'
 import { testingKysely } from './_test'
 
 describe('builder', () => {
@@ -70,4 +70,4 @@ describe('builder', () => {
   })
 })
 
-const db = testingKysely(new KyselySqlCommenterPlugin(() => {}).enableBuilder())
+const db = testingKysely(new SqlCommenterPlugin(() => {}).enableBuilder())

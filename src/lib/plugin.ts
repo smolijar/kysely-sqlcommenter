@@ -9,15 +9,37 @@ import {
 import { BuilderMode } from './modes/builder'
 import { CallbackMode, SqlCommentCallback } from './modes/callback'
 
-export interface KyselySqlCommenterPluginMode {
+export interface SqlCommenterPluginMode {
   transformNode(node: RootOperationNode): RootOperationNode
 }
 
-export class KyselySqlCommenterPlugin implements KyselyPlugin {
-  #mode?: KyselySqlCommenterPluginMode
+export class SqlCommenterPlugin implements KyselyPlugin {
+  #mode?: SqlCommenterPluginMode
 
   /**
-   * TODO: Examples
+   * ## Examples
+   * ### Express + AsyncLocalStorage
+   * ```ts
+   * import { AsyncLocalStorage } from 'async_hooks'
+   * import { Kysely } from 'kysely'
+   * import { SqlCommenterPlugin, SqlCommentLike } from 'kysely-sqlcommenter'
+   *
+   * const asyncLocalStorage = new AsyncLocalStorage<SqlCommentLike>()
+   *
+   * const db = new Kysely<DB>({
+   *   // Pass async local storage callback to the plugin
+   *   plugins: [new SqlCommenterPlugin(() => asyncLocalStorage.getStore())],
+   * })
+   *
+   * app.use((req, res, next) => {
+   *   // Initialize storage
+   *   asyncLocalStorage.run({ controller: req.path.replace(/^\//, '') }, next)
+   * })
+   *
+   *
+   * db.selectFrom('cats').select(['id', 'name'])
+   * // select "id", "name" from "cats" /*controller='cats'* /
+   * ```
    */
   constructor(callback: SqlCommentCallback) {
     this.enableCallback(callback)

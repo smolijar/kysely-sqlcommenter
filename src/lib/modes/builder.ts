@@ -8,7 +8,7 @@ import {
   sql,
 } from 'kysely'
 import { SqlCommentLike, SqlComment } from '../comment/sqlcomment'
-import { KyselySqlCommenterPluginMode } from '../plugin'
+import { SqlCommenterPluginMode } from '../plugin'
 
 export class SqlCommenterFragmentExpression<T> implements Expression<T> {
   constructor(private readonly comment: SqlCommentLike = {}) {}
@@ -68,7 +68,7 @@ export function sqlCommenter(
   return this.modifyEnd(new SqlCommenterFragmentExpression(comment))
 }
 
-export class BuilderMode implements KyselySqlCommenterPluginMode {
+export class BuilderMode implements SqlCommenterPluginMode {
   constructor() {
     // Class not exported, see https://github.com/kysely-org/kysely/pull/721#issuecomment-1745328785
     const createSelectQueryBuilderInstance = createSelectQueryBuilder

@@ -1,6 +1,6 @@
 {
   "name": "kysely-sqlcommenter",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "author": "Jaroslav Šmolík <smolijar@gmail.com>",
   "license": "MIT",
@@ -21,7 +21,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "test": "vitest",
-    "test:integration": "./integration-test/test.sh"
+    "test:integration": "./integration-test-builder/test.sh"
   },
   "devDependencies": {
     "@types/node": "^20.11.7",

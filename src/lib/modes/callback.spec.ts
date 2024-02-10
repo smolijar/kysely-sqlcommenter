@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
-import { KyselySqlCommenterPlugin } from '../../main'
+import { SqlCommenterPlugin } from '../../main'
 import { AsyncLocalStorage } from 'async_hooks'
 import { SqlCommentLike } from '../comment/sqlcomment'
 import { createServer, get } from 'http'
@@ -8,7 +8,7 @@ import { testingKysely } from './_test'
 
 describe('callback', () => {
   it('noop', async () => {
-    const db = testingKysely(new KyselySqlCommenterPlugin(() => {}))
+    const db = testingKysely(new SqlCommenterPlugin(() => {}))
     const { sql, parameters } = db
       .selectFrom('person')
       .select(['id', 'first_name'])
@@ -19,7 +19,7 @@ describe('callback', () => {
   })
   it('select', async () => {
     const db = testingKysely(
-      new KyselySqlCommenterPlugin(() => ({
+      new SqlCommenterPlugin(() => ({
         controller: 'person',
         action: 'get',
       }))
@@ -58,7 +58,7 @@ describe('callback', () => {
     //   }
     // }
     const db = testingKysely(
-      new KyselySqlCommenterPlugin(() => ({
+      new SqlCommenterPlugin(() => ({
         controller: 'person',
         action: 'put',
       }))
@@ -74,7 +74,7 @@ describe('callback', () => {
   it('async local storage in http server', async () => {
     const asyncLocalStorage = new AsyncLocalStorage<SqlCommentLike>()
     const db = testingKysely(
-      new KyselySqlCommenterPlugin(() => asyncLocalStorage.getStore())
+      new SqlCommenterPlugin(() => asyncLocalStorage.getStore())
     )
 
     const server = createServer((req, res) => {
