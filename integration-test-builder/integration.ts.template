@@ -1,5 +1,9 @@
 import { Generated, Kysely, PostgresDialect } from 'kysely'
-import { SqlCommenterPlugin, SqlCommentLike } from 'kysely-sqlcommenter'
+import {
+  SqlCommenterPlugin,
+  SqlCommentLike,
+  sqlCommenter,
+} from 'kysely-sqlcommenter'
 
 interface DB {
   person: {
@@ -32,3 +36,25 @@ if (compiled.sql !== expected) {
 }
 
 console.log(compiled.sql)
+
+const helperDb = new Kysely<DB>({
+  dialect: new PostgresDialect({
+    pool: null as any,
+  }),
+})
+
+const helperCompiled = helperDb
+  .selectFrom('person')
+  .select(['id', 'first_name'])
+  .$call(sqlCommenter(comment))
+  .compile()
+
+const helperExpected = `select "id", "first_name" from "person" /*action='get',controller='person'*/`
+
+if (helperCompiled.sql !== helperExpected) {
+  throw new Error(
+    `Expected ${JSON.stringify(helperExpected)}, received ${JSON.stringify(helperCompiled.sql)}`
+  )
+}
+
+console.log(helperCompiled.sql)

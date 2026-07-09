@@ -14,7 +14,9 @@
 npm install kysely-sqlcommenter
 ```
 
-SqlCommenterPlugin does not change the API of Kysely. You can only provide it callback for getting the metadata for the comment. [AsyncLocalStorage](https://nodejs.org/api/async_hooks.html#class-asynclocalstorage) or any alternative is needed.
+Requires Kysely `0.27.5` or newer.
+
+SqlCommenterPlugin does not change the API of Kysely. You only provide it a callback for getting the metadata for the comment. [AsyncLocalStorage](https://nodejs.org/api/async_hooks.html#class-asynclocalstorage) or any alternative is needed.
 
 Initialize the `AsyncLocalStorage`:
 
@@ -47,11 +49,22 @@ app.use((req, res, next) => {
 })
 ```
 
-Any kysely calls will have the appropriate _SqlComment_
+Any supported Kysely query will have the appropriate _SqlComment_.
 
 ```ts
 db.selectFrom('cats').select(['id', 'name'])
 // select "id", "name" from "cats" /*controller='cats'*/
+```
+
+For explicit per-query comments, use Kysely's `$call` helper API:
+
+```ts
+import { sqlCommenter } from 'kysely-sqlcommenter'
+
+db.selectFrom('cats')
+  .$call(sqlCommenter({ controller: 'cats', action: 'list' }))
+  .select(['id', 'name'])
+// select "id", "name" from "cats" /*action='list',controller='cats'*/
 ```
 
 See the full working example for express [here](./examples/express.ts), including concurrency demo and adjusting the comment in other middleware.
@@ -61,13 +74,13 @@ See the full working example for express [here](./examples/express.ts), includin
 - [x] Tests, examples, integration tests
 - [x] SqlCommenter spec tests
 - [x] Callback API + Examples with CLS
-- [ ] Builder API (not really a priority with the amount of hacking needed)
+- [x] Builder helper API via Kysely `$call`
 - [x] CI
-- [ ] Query support (assume only DML, other are not useful)
+- [x] Query support (assume only DML, other are not useful)
   - [x] Select
-  - [ ] Update (will be lot easier after https://github.com/kysely-org/kysely/issues/835)
-  - [ ] Insert (will be lot easier after https://github.com/kysely-org/kysely/issues/835)
-  - [ ] Delete (will be lot easier after https://github.com/kysely-org/kysely/issues/835)
+  - [x] Update
+  - [x] Insert
+  - [x] Delete
 
 ## References
 

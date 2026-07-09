@@ -33,30 +33,7 @@ describe('callback', () => {
       `select "id", "first_name" from "person" where "id" = $1 /*action='get',controller='person'*/`
     )
   })
-  it.skip('update', async () => {
-    // if (node.kind === 'UpdateQueryNode') {
-    //   const sqlComment = new SqlComment(
-    //     this.#getComment() ?? undefined
-    //   ).serialize()
-    //   if (sqlComment) {
-    //     const returning = {
-    //       ...(node.returning ?? {
-    //         kind: 'ReturningNode',
-    //         selections: [],
-    //       }),
-    //     }
-    //     return {
-    //       ...node,
-    //       returning: {
-    //         ...returning,
-    //         selections: [
-    //           ...returning.selections,
-    //           sql`${sql.raw(sqlComment)}`.toOperationNode() as any,
-    //         ],
-    //       },
-    //     }
-    //   }
-    // }
+  it('update', async () => {
     const db = testingKysely(
       new SqlCommenterPlugin(() => ({
         controller: 'person',
@@ -66,9 +43,40 @@ describe('callback', () => {
     const { sql } = db
       .updateTable('person')
       .set({ first_name: 'foo' })
+      .where('id', '=', '1')
       .compile()
     expect(sql).toBe(
-      `update "person" set "first_name" = $1 /*action='put',controller='person'*/`
+      `update "person" set "first_name" = $1 where "id" = $2 /*action='put',controller='person'*/`
+    )
+  })
+  it('insert', async () => {
+    const db = testingKysely(
+      new SqlCommenterPlugin(() => ({
+        controller: 'person',
+        action: 'post',
+      }))
+    )
+    const { sql } = db
+      .insertInto('person')
+      .values({ first_name: 'foo', last_name: null, age: 1 })
+      .compile()
+    expect(sql).toBe(
+      `insert into "person" ("first_name", "last_name", "age") values ($1, $2, $3) /*action='post',controller='person'*/`
+    )
+  })
+  it('delete', async () => {
+    const db = testingKysely(
+      new SqlCommenterPlugin(() => ({
+        controller: 'person',
+        action: 'delete',
+      }))
+    )
+    const { sql } = db
+      .deleteFrom('person')
+      .where('id', '=', '1')
+      .compile()
+    expect(sql).toBe(
+      `delete from "person" where "id" = $1 /*action='delete',controller='person'*/`
     )
   })
   it('async local storage in http server', async () => {

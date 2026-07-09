@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 
-import { SqlCommenterPlugin } from '../../main'
+import { sqlCommenter } from '../../main'
 import { testingKysely } from './_test'
 
-describe('builder', () => {
+describe(`${sqlCommenter.name}`, () => {
   it('noop', async () => {
     const person = await db
       .selectFrom('person')
@@ -21,7 +21,7 @@ describe('builder', () => {
       .selectFrom('person')
       .select(['id', 'first_name'])
       .where('id', '=', '1')
-      .sqlCommenter({ controller: 'person', action: 'get' })
+      .$call(sqlCommenter({ controller: 'person', action: 'get' }))
       .compile()
 
     expect(person).toMatchObject({
@@ -29,17 +29,40 @@ describe('builder', () => {
       parameters: ['1'],
     })
   })
-  it('merging comments', async () => {
+  it('update', async () => {
     const person = await db
-      .selectFrom('person')
-      .sqlCommenter({ controller: 'person' })
-      .select(['id', 'first_name'])
+      .updateTable('person')
+      .set({ first_name: 'foo' })
       .where('id', '=', '1')
-      .sqlCommenter({ action: 'get' })
+      .$call(sqlCommenter({ controller: 'person', action: 'put' }))
       .compile()
 
     expect(person).toMatchObject({
-      sql: `select "id", "first_name" from "person" where "id" = $1 /*action='get',controller='person'*/`,
+      sql: `update "person" set "first_name" = $1 where "id" = $2 /*action='put',controller='person'*/`,
+      parameters: ['foo', '1'],
+    })
+  })
+  it('insert', async () => {
+    const person = await db
+      .insertInto('person')
+      .values({ first_name: 'foo', last_name: null, age: 1 })
+      .$call(sqlCommenter({ controller: 'person', action: 'post' }))
+      .compile()
+
+    expect(person).toMatchObject({
+      sql: `insert into "person" ("first_name", "last_name", "age") values ($1, $2, $3) /*action='post',controller='person'*/`,
+      parameters: ['foo', null, 1],
+    })
+  })
+  it('delete', async () => {
+    const person = await db
+      .deleteFrom('person')
+      .where('id', '=', '1')
+      .$call(sqlCommenter({ controller: 'person', action: 'delete' }))
+      .compile()
+
+    expect(person).toMatchObject({
+      sql: `delete from "person" where "id" = $1 /*action='delete',controller='person'*/`,
       parameters: ['1'],
     })
   })
@@ -51,15 +74,15 @@ describe('builder', () => {
             .selectFrom('person')
             .select(['id', 'first_name'])
             .where('id', '=', '1')
-            .sqlCommenter({ controller: '1' }),
+            .$call(sqlCommenter({ controller: '1' })),
           db
             .selectFrom('person')
             .select(['id', 'first_name'])
-            .sqlCommenter({ controller: '1' })
+            .$call(sqlCommenter({ controller: '1' }))
             .where('id', '=', '1'),
           db
             .selectFrom('person')
-            .sqlCommenter({ controller: '1' })
+            .$call(sqlCommenter({ controller: '1' }))
             .select(['id', 'first_name'])
             .where('id', '=', '1'),
         ].map((q) => q.compile())
@@ -70,4 +93,4 @@ describe('builder', () => {
   })
 })
 
-const db = testingKysely(new SqlCommenterPlugin(() => {}).enableBuilder())
+const db = testingKysely()

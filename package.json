@@ -32,11 +32,11 @@
     "prepublishOnly": "npm test && npm run test:integration"
   },
   "peerDependencies": {
-    "kysely": "^0.27.2"
+    "kysely": "^0.27.5"
   },
   "devDependencies": {
     "@types/node": "^20.11.7",
-    "kysely": "^0.27.2",
+    "kysely": "^0.27.5",
     "typescript": "^5.2.2",
     "vite": "^5.0.8",
     "vite-plugin-dts": "^3.7.2",
