@@ -2,7 +2,7 @@
   
 ![](https://i.imgur.com/V7Cwyw2.png)
 
-# Kysely SqlCommnenter
+# Kysely SqlCommenter
 
 [SqlCommenter](https://google.github.io/sqlcommenter/) plugin for [Kysely](https://kysely.dev/)
 
