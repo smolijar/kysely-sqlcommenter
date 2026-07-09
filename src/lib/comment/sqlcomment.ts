@@ -19,11 +19,15 @@ export class SqlComment {
 }
 
 export function serializeValue(value: string) {
-  return `'${encodeURIComponent(value).replace(/'/g, `\\'`)}'`
+  return `'${escapeMetaCharacters(encodeURIComponent(value))}'`
 }
 
 export function serializeKey(value: string) {
-  return encodeURIComponent(value)
+  return escapeMetaCharacters(encodeURIComponent(value))
+}
+
+export function escapeMetaCharacters(value: string) {
+  return value.replace(/'/g, `\\'`)
 }
 
 export type SqlCommentLike = {
