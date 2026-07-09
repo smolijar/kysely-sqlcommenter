@@ -2,10 +2,13 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-TMP_DIR="$ROOT_DIR/tmp/integration-test-builder"
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/kysely-sqlcommenter.XXXXXX")"
 
-rm -rf "$TMP_DIR"
-mkdir -p "$TMP_DIR"
+cleanup() {
+  rm -rf "$TMP_DIR"
+}
+trap cleanup EXIT
+
 cp "$ROOT_DIR/integration-test-builder/integration.ts.template" "$TMP_DIR/main.ts"
 
 pnpm --dir "$ROOT_DIR" run build
@@ -14,6 +17,10 @@ pnpm --dir "$ROOT_DIR" pack --pack-destination "$TMP_DIR"
 tarball="$(basename "$TMP_DIR"/kysely-sqlcommenter-*.tgz)"
 
 cd "$TMP_DIR"
+cat > .npmrc <<'NPMRC'
+minimum-release-age=10080
+minimum-release-age-strict=true
+NPMRC
 cat > package.json <<'JSON'
 {
   "name": "kysely-sqlcommenter-smoke",
