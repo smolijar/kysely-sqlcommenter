@@ -46,7 +46,7 @@ const helperDb = new Kysely<DB>({
 const helperCompiled = helperDb
   .selectFrom('person')
   .select(['id', 'first_name'])
-  .$call(sqlCommenter(comment))
+  .$call((qb) => sqlCommenter(qb, comment))
   .compile()
 
 const helperExpected = `select "id", "first_name" from "person" /*action='get',controller='person'*/`

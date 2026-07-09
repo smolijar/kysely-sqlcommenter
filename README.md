@@ -14,7 +14,7 @@
 npm install kysely-sqlcommenter
 ```
 
-Requires Kysely `0.27.5` or newer.
+Requires Kysely `>=0.28.17 <0.30.0`.
 
 SqlCommenterPlugin does not change the API of Kysely. You only provide it a callback for getting the metadata for the comment. [AsyncLocalStorage](https://nodejs.org/api/async_hooks.html#class-asynclocalstorage) or any alternative is needed.
 
@@ -49,7 +49,7 @@ app.use((req, res, next) => {
 })
 ```
 
-Any supported Kysely query will have the appropriate _SqlComment_.
+Any supported DML query will have the appropriate _SqlComment_. Supported query types: select, update, insert, delete, and merge.
 
 ```ts
 db.selectFrom('cats').select(['id', 'name'])
@@ -62,7 +62,7 @@ For explicit per-query comments, use Kysely's `$call` helper API:
 import { sqlCommenter } from 'kysely-sqlcommenter'
 
 db.selectFrom('cats')
-  .$call(sqlCommenter({ controller: 'cats', action: 'list' }))
+  .$call((qb) => sqlCommenter(qb, { controller: 'cats', action: 'list' }))
   .select(['id', 'name'])
 // select "id", "name" from "cats" /*action='list',controller='cats'*/
 ```
