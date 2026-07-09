@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite'
 import { resolve } from 'path'
-import dts from 'vite-plugin-dts'
 
 export default defineConfig({
   build: {
@@ -18,11 +17,4 @@ export default defineConfig({
     },
   },
   resolve: { alias: { src: resolve('src/') } },
-  plugins: [
-    dts({
-      insertTypesEntry: true,
-      exclude: ['**/**/*.spec.*', '**/**/_.*'],
-      rollupTypes: true,
-    }),
-  ],
 })

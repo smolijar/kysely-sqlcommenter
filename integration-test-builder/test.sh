@@ -8,13 +8,21 @@ rm -rf "$TMP_DIR"
 mkdir -p "$TMP_DIR"
 cp "$ROOT_DIR/integration-test-builder/integration.ts.template" "$TMP_DIR/main.ts"
 
-npm run build --prefix "$ROOT_DIR"
+pnpm --dir "$ROOT_DIR" run build
 
-tarball="$(npm pack "$ROOT_DIR" --pack-destination "$TMP_DIR" --silent)"
+pnpm --dir "$ROOT_DIR" pack --pack-destination "$TMP_DIR"
+tarball="$(basename "$TMP_DIR"/kysely-sqlcommenter-*.tgz)"
 
 cd "$TMP_DIR"
-npm init -y
-npm install "./$tarball" kysely tsx typescript @types/node
+cat > package.json <<'JSON'
+{
+  "name": "kysely-sqlcommenter-smoke",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true
+}
+JSON
+pnpm add "./$tarball" kysely tsx typescript @types/node
 cat > tsconfig.json <<'JSON'
 {
   "compilerOptions": {
@@ -28,5 +36,5 @@ cat > tsconfig.json <<'JSON'
   "files": ["main.ts"]
 }
 JSON
-npx tsc --project tsconfig.json
-npx tsx main.ts
+pnpm exec tsc --project tsconfig.json
+pnpm exec tsx main.ts
