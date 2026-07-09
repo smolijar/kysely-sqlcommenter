@@ -113,6 +113,34 @@ describe('callback', () => {
       .compile()
     expect(sql).toBe(`select "id" from "person" /*existing*/`)
   })
+  it('skips existing line comments', async () => {
+    const db = testingKysely(
+      new SqlCommenterPlugin(() => ({
+        controller: 'person',
+      }))
+    )
+    const { sql } = db
+      .selectFrom('person')
+      .select(['id'])
+      .modifyEnd(rawSql.raw('-- existing'))
+      .compile()
+    expect(sql).toBe(`select "id" from "person" -- existing`)
+  })
+  it('does not treat line-comment tokens inside strings as comments', async () => {
+    const db = testingKysely(
+      new SqlCommenterPlugin(() => ({
+        controller: 'person',
+      }))
+    )
+    const { sql } = db
+      .selectFrom('person')
+      .select(['id'])
+      .modifyEnd(rawSql.raw("where 'a--b' = 'a--b'"))
+      .compile()
+    expect(sql).toBe(
+      `select "id" from "person" where 'a--b' = 'a--b' /*controller='person'*/`
+    )
+  })
   it('skips null comments', async () => {
     const db = testingKysely(new SqlCommenterPlugin(() => null))
     const { sql } = db

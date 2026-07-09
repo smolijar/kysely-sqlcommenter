@@ -31,12 +31,48 @@ type SqlFragmentOperationNode = OperationNode & {
   sqlFragments?: ReadonlyArray<string>
 }
 
+const containsSqlCommentToken = (fragment: string): boolean => {
+  let quote: 'single' | 'double' | undefined
+
+  for (let i = 0; i < fragment.length; i += 1) {
+    const char = fragment[i]
+    const next = fragment[i + 1]
+
+    if (quote) {
+      if (quote === 'single' && char === '\\') {
+        i += 1
+      } else if (quote === 'single' && char === "'" && next === "'") {
+        i += 1
+      } else if (
+        (quote === 'single' && char === "'") ||
+        (quote === 'double' && char === '"')
+      ) {
+        quote = undefined
+      }
+      continue
+    }
+
+    if (char === "'") {
+      quote = 'single'
+    } else if (char === '"') {
+      quote = 'double'
+    } else if (
+      (char === '/' && next === '*') ||
+      (char === '-' && next === '-')
+    ) {
+      return true
+    }
+  }
+
+  return false
+}
+
 const containsSqlComment = (node: OperationNode): boolean => {
   const { rawModifier, sqlFragments } = node as SqlFragmentOperationNode
+  // Kysely has no public API for reading end modifiers, so this checks the raw
+  // node shape produced by `sql.raw`. Keep peer range pinned below new majors.
   return Boolean(
-    sqlFragments?.some((fragment) =>
-      fragment.includes('/*') || fragment.includes('--')
-    ) ||
+    sqlFragments?.some(containsSqlCommentToken) ||
       (rawModifier && containsSqlComment(rawModifier))
   )
 }
