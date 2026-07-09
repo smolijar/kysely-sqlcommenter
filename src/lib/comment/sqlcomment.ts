@@ -8,10 +8,8 @@ export class SqlComment {
 
   serialize() {
     const content = Object.entries(this.record)
-      .filter(
-        ([key, value]) => typeof key === 'string' && typeof value === 'string'
-      )
-      .map(([key, value]) => `${serializeKey(key)}=${serializeValue(value!)}`)
+      .filter(([, value]) => value != null)
+      .map(([key, value]) => `${serializeKey(key)}=${serializeValue(String(value))}`)
       .sort()
       .join(',')
     return content ? `/*${content}*/` : ''
@@ -30,8 +28,10 @@ export function escapeMetaCharacters(value: string) {
   return value.replace(/'/g, `\\'`)
 }
 
+export type SqlCommentValue = string | number | boolean | bigint | undefined | null
+
 export type SqlCommentLike = {
-  [key: string]: string | undefined
+  [key: string]: SqlCommentValue
   tracestate?: string
   traceparent?: string
   framework?: string

@@ -32,9 +32,21 @@ describe(`${SqlComment.name}`, () => {
         .serialize()
     ).to.equal(`/*a=\'1\',b=\'2\',c=\'2\'*/`)
   })
-  it('skips non-string values', () => {
+  it('coerces non-string values and skips nullish values', () => {
     expect(
-      new SqlComment({ a: '1', b: undefined, c: 1 as unknown as string })
+      new SqlComment({
+        a: '1',
+        b: undefined,
+        c: 1,
+        d: false,
+        e: null,
+      }).serialize()
+    ).to.equal(`/*a='1',c='1',d='false'*/`)
+  })
+  it('merge removes values overwritten with nullish values', () => {
+    expect(
+      new SqlComment({ a: '1', b: '1' })
+        .merge({ b: undefined, c: null })
         .serialize()
     ).to.equal(`/*a='1'*/`)
   })
