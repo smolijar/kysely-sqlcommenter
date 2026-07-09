@@ -1,10 +1,13 @@
 <div align="center">
   
-![](https://i.imgur.com/V7Cwyw2.png)
+<img src="https://i.imgur.com/Nh40Jdw.png" width=300 />
 
 # Kysely SqlCommenter
 
 [SqlCommenter](https://google.github.io/sqlcommenter/) plugin for [Kysely](https://kysely.dev/)
+
+[![npm version](https://img.shields.io/npm/v/kysely-sqlcommenter.svg)](https://www.npmjs.com/package/kysely-sqlcommenter)
+[![CI](https://github.com/smolijar/kysely-sqlcommenter/actions/workflows/test.yaml/badge.svg)](https://github.com/smolijar/kysely-sqlcommenter/actions/workflows/test.yaml)
 
 </div>
 
@@ -69,18 +72,13 @@ db.selectFrom('cats')
 
 See the full working example for express [here](./examples/express.ts), including concurrency demo and adjusting the comment in other middleware.
 
-## Progress
+## Features
 
-- [x] Tests, examples, integration tests
-- [x] SqlCommenter spec tests
-- [x] Callback API + Examples with CLS
-- [x] Builder helper API via Kysely `$call`
-- [x] CI
-- [x] Query support (assume only DML, other are not useful)
-  - [x] Select
-  - [x] Update
-  - [x] Insert
-  - [x] Delete
+- SqlCommenter spec serialization tests
+- Callback API with AsyncLocalStorage examples
+- Explicit helper API via Kysely `$call`
+- DML query support: select, update, insert, delete, and merge
+- Package smoke tests and CI
 
 ## References
 
