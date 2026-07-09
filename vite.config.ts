@@ -6,7 +6,15 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
-      name: 'kysely-sqlformatter',
+      name: 'KyselySqlCommenter',
+    },
+    rollupOptions: {
+      external: ['kysely'],
+      output: {
+        globals: {
+          kysely: 'kysely',
+        },
+      },
     },
   },
   resolve: { alias: { src: resolve('src/') } },

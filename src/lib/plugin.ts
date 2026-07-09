@@ -41,8 +41,8 @@ export class SqlCommenterPlugin implements KyselyPlugin {
    * // select "id", "name" from "cats" /*controller='cats'* /
    * ```
    */
-  constructor(callback: SqlCommentCallback) {
-    this.enableCallback(callback)
+  constructor(callback?: SqlCommentCallback) {
+    if (callback) this.enableCallback(callback)
   }
 
   /**

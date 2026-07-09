@@ -18,6 +18,7 @@
   "types": "./dist/kysely-sqlcommenter.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/kysely-sqlcommenter.d.ts",
       "import": "./dist/kysely-sqlcommenter.js",
       "require": "./dist/kysely-sqlcommenter.umd.cjs"
     }
@@ -25,8 +26,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "test": "vitest",
-    "test:integration": "./integration-test-builder/test.sh"
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "test:integration": "./integration-test-builder/test.sh",
+    "prepublishOnly": "npm test && npm run test:integration"
+  },
+  "peerDependencies": {
+    "kysely": "^0.27.2"
   },
   "devDependencies": {
     "@types/node": "^20.11.7",
