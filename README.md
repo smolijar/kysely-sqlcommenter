@@ -1,10 +1,13 @@
 <div align="center">
   
-![](https://i.imgur.com/V7Cwyw2.png)
+<img src="https://i.imgur.com/Nh40Jdw.png" width=300 />
 
-# Kysely SqlCommnenter
+# Kysely SqlCommenter
 
 [SqlCommenter](https://google.github.io/sqlcommenter/) plugin for [Kysely](https://kysely.dev/)
+
+[![npm version](https://img.shields.io/npm/v/kysely-sqlcommenter.svg)](https://www.npmjs.com/package/kysely-sqlcommenter)
+[![CI](https://github.com/smolijar/kysely-sqlcommenter/actions/workflows/test.yaml/badge.svg)](https://github.com/smolijar/kysely-sqlcommenter/actions/workflows/test.yaml)
 
 </div>
 
@@ -14,7 +17,9 @@
 npm install kysely-sqlcommenter
 ```
 
-SqlCommenterPlugin does not change the API of Kysely. You can only provide it callback for getting the metadata for the comment. [AsyncLocalStorage](https://nodejs.org/api/async_hooks.html#class-asynclocalstorage) or any alternative is needed.
+Requires Kysely `>=0.28.17 <0.30.0`.
+
+SqlCommenterPlugin does not change the API of Kysely. You only provide it a callback for getting the metadata for the comment. [AsyncLocalStorage](https://nodejs.org/api/async_hooks.html#class-asynclocalstorage) or any alternative is needed.
 
 Initialize the `AsyncLocalStorage`:
 
@@ -47,27 +52,33 @@ app.use((req, res, next) => {
 })
 ```
 
-Any kysely calls will have the appropriate _SqlComment_
+Any supported DML query will have the appropriate _SqlComment_. Supported query types: select, update, insert, delete, and merge.
 
 ```ts
 db.selectFrom('cats').select(['id', 'name'])
 // select "id", "name" from "cats" /*controller='cats'*/
 ```
 
+For explicit per-query comments, use Kysely's `$call` helper API:
+
+```ts
+import { sqlCommenter } from 'kysely-sqlcommenter'
+
+db.selectFrom('cats')
+  .$call((qb) => sqlCommenter(qb, { controller: 'cats', action: 'list' }))
+  .select(['id', 'name'])
+// select "id", "name" from "cats" /*action='list',controller='cats'*/
+```
+
 See the full working example for express [here](./examples/express.ts), including concurrency demo and adjusting the comment in other middleware.
 
-## Progress
+## Features
 
-- [x] Tests, examples, integration tests
-- [x] SqlCommenter spec tests
-- [x] Callback API + Examples with CLS
-- [ ] Builder API (not really a priority with the amount of hacking needed)
-- [x] CI
-- [ ] Query support (assume only DML, other are not useful)
-  - [x] Select
-  - [ ] Update (will be lot easier after https://github.com/kysely-org/kysely/issues/835)
-  - [ ] Insert (will be lot easier after https://github.com/kysely-org/kysely/issues/835)
-  - [ ] Delete (will be lot easier after https://github.com/kysely-org/kysely/issues/835)
+- SqlCommenter spec serialization tests
+- Callback API with AsyncLocalStorage examples
+- Explicit helper API via Kysely `$call`
+- DML query support: select, update, insert, delete, and merge
+- Package smoke tests and CI
 
 ## References
 

@@ -21,10 +21,10 @@ interface PetTable {
   is_favorite: boolean
 }
 
-export const testingKysely = (plugin: KyselyPlugin) =>
+export const testingKysely = (plugin?: KyselyPlugin) =>
   new Kysely<DB>({
     dialect: new PostgresDialect({
       pool: null as any,
     }),
-    plugins: [plugin],
+    plugins: plugin ? [plugin] : [],
   })

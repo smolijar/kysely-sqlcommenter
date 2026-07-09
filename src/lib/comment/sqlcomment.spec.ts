@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { SqlComment, serializeKey, serializeValue } from './sqlcomment'
+import {
+  escapeMetaCharacters,
+  SqlComment,
+  serializeKey,
+  serializeValue,
+} from './sqlcomment'
 
 describe(`${SqlComment.name}`, () => {
   // https://google.github.io/sqlcommenter/spec/
@@ -27,7 +32,30 @@ describe(`${SqlComment.name}`, () => {
         .serialize()
     ).to.equal(`/*a=\'1\',b=\'2\',c=\'2\'*/`)
   })
-  it.todo('cannot set non-string key')
+  it('coerces non-string values and skips nullish values', () => {
+    expect(
+      new SqlComment({
+        a: '1',
+        b: undefined,
+        c: 1,
+        d: false,
+        e: null,
+      }).serialize()
+    ).to.equal(`/*a='1',c='1',d='false'*/`)
+  })
+  it('merge removes values overwritten with nullish values', () => {
+    expect(
+      new SqlComment({ a: '1', b: '1' })
+        .merge({ b: undefined, c: null })
+        .serialize()
+    ).to.equal(`/*a='1'*/`)
+  })
+})
+
+describe(`${escapeMetaCharacters.name}`, () => {
+  it('escapes single quotes', () => {
+    expect(escapeMetaCharacters(`name''`)).to.equal("name\\'\\'")
+  })
 })
 
 describe(`${serializeValue.name}`, () => {
@@ -44,6 +72,7 @@ describe(`${serializeValue.name}`, () => {
 describe(`${serializeKey.name}`, () => {
   it('spec', () => {
     expect(serializeKey(`route`)).to.equal(`route`)
-    expect(serializeKey(`name''`)).to.equal(`name''`)
+    expect(serializeKey(`name''`)).to.equal("name\\'\\'")
+    expect(serializeKey(`route parameter`)).to.equal(`route%20parameter`)
   })
 })
