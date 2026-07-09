@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 
-import { SqlCommenterPlugin } from '../../main'
+import { SqlCommenterPlugin, SqlCommentLike } from '../../main'
 import { AsyncLocalStorage } from 'async_hooks'
-import { SqlCommentLike } from '../comment/sqlcomment'
 import { createServer, get } from 'http'
+import type { AddressInfo } from 'net'
 import { testingKysely } from './_test'
 
 describe('callback', () => {
@@ -91,27 +91,35 @@ describe('callback', () => {
           )
         })
       })
-    }).listen(8080)
+    })
+
+    await new Promise<void>((resolve) => server.listen(0, resolve))
+    const { port } = server.address() as AddressInfo
 
     const getPath = async (path: string) => {
       const res = await new Promise<string>((resolve) => {
         let data = ''
-        get(`http://localhost:8080/${path}`, (res) => {
+        get(`http://127.0.0.1:${port}/${path}`, (res) => {
           res.on('data', (d) => (data += d))
           res.on('end', () => resolve(data))
         })
       })
       return res
     }
-    const responses = await Promise.all(
-      Array.from({ length: 100 }).map((_, i) => getPath(`controller-${i}`))
-    )
-    responses.forEach((res, i) => {
-      expect(res).toBe(
-        `select "id", "first_name" from "person" where "id" = $1 /*controller='%2Fcontroller-${i}'*/`
-      )
-    })
 
-    await new Promise((resolve) => server.close(resolve))
+    try {
+      const responses = await Promise.all(
+        Array.from({ length: 100 }).map((_, i) => getPath(`controller-${i}`))
+      )
+      responses.forEach((res, i) => {
+        expect(res).toBe(
+          `select "id", "first_name" from "person" where "id" = $1 /*controller='%2Fcontroller-${i}'*/`
+        )
+      })
+    } finally {
+      await new Promise<void>((resolve, reject) => {
+        server.close((err) => (err ? reject(err) : resolve()))
+      })
+    }
   })
 })
