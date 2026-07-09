@@ -6,7 +6,10 @@
   "packageManager": "pnpm@10.33.0",
   "author": "Jaroslav Šmolík <smolijar@gmail.com>",
   "license": "MIT",
-  "repository": "smolijar/kysely-sqlcommenter",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smolijar/kysely-sqlcommenter.git"
+  },
   "homepage": "https://github.com/smolijar/kysely-sqlcommenter#readme",
   "bugs": {
     "url": "https://github.com/smolijar/kysely-sqlcommenter/issues"
