@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest'
 import { SqlCommenterPlugin, SqlCommentLike } from '../../main'
 import { AsyncLocalStorage } from 'async_hooks'
 import { createServer, get } from 'http'
+import { sql as rawSql } from 'kysely'
 import type { AddressInfo } from 'net'
 import { testingKysely } from './_test'
 
@@ -40,7 +41,7 @@ describe('callback', () => {
         action: 'put',
       }))
     )
-    const { sql } = db
+    const { sql, parameters } = db
       .updateTable('person')
       .set({ first_name: 'foo' })
       .where('id', '=', '1')
@@ -48,6 +49,7 @@ describe('callback', () => {
     expect(sql).toBe(
       `update "person" set "first_name" = $1 where "id" = $2 /*action='put',controller='person'*/`
     )
+    expect(parameters).toStrictEqual(['foo', '1'])
   })
   it('insert', async () => {
     const db = testingKysely(
@@ -56,13 +58,14 @@ describe('callback', () => {
         action: 'post',
       }))
     )
-    const { sql } = db
+    const { sql, parameters } = db
       .insertInto('person')
       .values({ first_name: 'foo', last_name: null, age: 1 })
       .compile()
     expect(sql).toBe(
       `insert into "person" ("first_name", "last_name", "age") values ($1, $2, $3) /*action='post',controller='person'*/`
     )
+    expect(parameters).toStrictEqual(['foo', null, 1])
   })
   it('delete', async () => {
     const db = testingKysely(
@@ -71,13 +74,52 @@ describe('callback', () => {
         action: 'delete',
       }))
     )
-    const { sql } = db
+    const { sql, parameters } = db
       .deleteFrom('person')
       .where('id', '=', '1')
       .compile()
     expect(sql).toBe(
       `delete from "person" where "id" = $1 /*action='delete',controller='person'*/`
     )
+    expect(parameters).toStrictEqual(['1'])
+  })
+  it('merge', async () => {
+    const db = testingKysely(
+      new SqlCommenterPlugin(() => ({
+        controller: 'person',
+        action: 'merge',
+      }))
+    )
+    const { sql } = db
+      .mergeInto('person')
+      .using('pet', 'person.id', 'pet.owner_id')
+      .whenMatched()
+      .thenDelete()
+      .compile()
+    expect(sql).toBe(
+      `merge into "person" using "pet" on "person"."id" = "pet"."owner_id" when matched then delete /*action='merge',controller='person'*/`
+    )
+  })
+  it('skips existing end comments', async () => {
+    const db = testingKysely(
+      new SqlCommenterPlugin(() => ({
+        controller: 'person',
+      }))
+    )
+    const { sql } = db
+      .selectFrom('person')
+      .select(['id'])
+      .modifyEnd(rawSql.raw('/*existing*/'))
+      .compile()
+    expect(sql).toBe(`select "id" from "person" /*existing*/`)
+  })
+  it('skips null comments', async () => {
+    const db = testingKysely(new SqlCommenterPlugin(() => null))
+    const { sql } = db
+      .updateTable('person')
+      .set({ first_name: 'foo' })
+      .compile()
+    expect(sql).toBe(`update "person" set "first_name" = $1`)
   })
   it('async local storage in http server', async () => {
     const asyncLocalStorage = new AsyncLocalStorage<SqlCommentLike>()

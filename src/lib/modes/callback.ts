@@ -26,6 +26,21 @@ const supportsEndModifiers = (
   node.kind === 'DeleteQueryNode' ||
   node.kind === 'MergeQueryNode'
 
+type SqlFragmentOperationNode = OperationNode & {
+  rawModifier?: OperationNode
+  sqlFragments?: ReadonlyArray<string>
+}
+
+const containsSqlComment = (node: OperationNode): boolean => {
+  const { rawModifier, sqlFragments } = node as SqlFragmentOperationNode
+  return Boolean(
+    sqlFragments?.some((fragment) =>
+      fragment.includes('/*') || fragment.includes('--')
+    ) ||
+      (rawModifier && containsSqlComment(rawModifier))
+  )
+}
+
 export class CallbackMode implements SqlCommenterPluginMode {
   #getComment: SqlCommentCallback
   constructor(getComment: SqlCommentCallback) {
@@ -33,6 +48,8 @@ export class CallbackMode implements SqlCommenterPluginMode {
   }
   transformNode(node: RootOperationNode): RootOperationNode {
     if (supportsEndModifiers(node)) {
+      if (node.endModifiers?.some(containsSqlComment)) return node
+
       const sqlComment = new SqlComment(
         this.#getComment() ?? undefined
       ).serialize()
