@@ -1,6 +1,6 @@
 {
   "name": "kysely-sqlcommenter",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "SqlCommenter plugin and helpers for Kysely",
   "type": "module",
   "packageManager": "pnpm@10.33.0",
