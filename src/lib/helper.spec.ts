@@ -29,6 +29,24 @@ describe(`${sqlCommenter.name}`, () => {
       parameters: ['1'],
     })
   })
+  it('supports unquoted values', async () => {
+    const person = await db
+      .selectFrom('person')
+      .select(['id', 'first_name'])
+      .$call((qb) =>
+        sqlCommenter(
+          qb,
+          { controller: 'person', action: 'get' },
+          { quoteValues: false }
+        )
+      )
+      .compile()
+
+    expect(person).toMatchObject({
+      sql: `select "id", "first_name" from "person" /*action=get,controller=person*/`,
+      parameters: [],
+    })
+  })
   it('update', async () => {
     const person = await db
       .updateTable('person')

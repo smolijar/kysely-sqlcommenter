@@ -7,6 +7,7 @@ import {
   RootOperationNode,
 } from 'kysely'
 import { CallbackMode, SqlCommentCallback } from './modes/callback'
+import { SqlCommentSerializeOptions } from './comment/sqlcomment'
 
 export interface SqlCommenterPluginMode {
   transformNode(node: RootOperationNode): RootOperationNode
@@ -40,12 +41,18 @@ export class SqlCommenterPlugin implements KyselyPlugin {
    * // select "id", "name" from "cats" /*controller='cats'* /
    * ```
    */
-  constructor(callback: SqlCommentCallback) {
-    this.enableCallback(callback)
+  constructor(
+    callback: SqlCommentCallback,
+    options?: SqlCommenterPluginOptions
+  ) {
+    this.enableCallback(callback, options)
   }
 
-  private enableCallback(getComment: SqlCommentCallback) {
-    this.#mode = new CallbackMode(getComment)
+  private enableCallback(
+    getComment: SqlCommentCallback,
+    options?: SqlCommenterPluginOptions
+  ) {
+    this.#mode = new CallbackMode(getComment, options)
     return this
   }
 
@@ -59,3 +66,5 @@ export class SqlCommenterPlugin implements KyselyPlugin {
     return args.result
   }
 }
+
+export type SqlCommenterPluginOptions = SqlCommentSerializeOptions

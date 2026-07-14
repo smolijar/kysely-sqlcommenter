@@ -1,5 +1,9 @@
 import { OperationNode, RootOperationNode, sql } from 'kysely'
-import { MaybeSqlCommentLike, SqlComment } from '../comment/sqlcomment'
+import {
+  MaybeSqlCommentLike,
+  SqlComment,
+  SqlCommentSerializeOptions,
+} from '../comment/sqlcomment'
 import { SqlCommenterPluginMode } from '../plugin'
 
 export type SqlCommentCallback = () => MaybeSqlCommentLike
@@ -79,15 +83,21 @@ const containsSqlComment = (node: OperationNode): boolean => {
 
 export class CallbackMode implements SqlCommenterPluginMode {
   #getComment: SqlCommentCallback
-  constructor(getComment: SqlCommentCallback) {
+  #options?: SqlCommentSerializeOptions
+  constructor(
+    getComment: SqlCommentCallback,
+    options?: SqlCommentSerializeOptions
+  ) {
     this.#getComment = getComment
+    this.#options = options
   }
   transformNode(node: RootOperationNode): RootOperationNode {
     if (supportsEndModifiers(node)) {
       if (node.endModifiers?.some(containsSqlComment)) return node
 
       const sqlComment = new SqlComment(
-        this.#getComment() ?? undefined
+        this.#getComment() ?? undefined,
+        this.#options
       ).serialize()
       if (!sqlComment) return node
 

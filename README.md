@@ -59,6 +59,26 @@ db.selectFrom('cats').select(['id', 'name'])
 // select "id", "name" from "cats" /*controller='cats'*/
 ```
 
+### Cloud SQL Query Insights
+
+Sqlcommenter spec wraps values in single quotes: `/*action='list'*/`. Cloud SQL Query Insights currently displays those delimiters as part of the tag value. Keep the default for spec-compliant output, or disable value quoting if you only target Cloud SQL display:
+
+```ts
+const db = new Kysely<DB>({
+  // ... kysely config
+  plugins: [
+    new SqlCommenterPlugin(() => asyncLocalStorage.getStore(), {
+      quoteValues: false,
+    }),
+  ],
+})
+```
+
+This emits `/*action=list*/`, which is intentionally not sqlcommenter-spec compliant.
+The explicit `sqlCommenter` helper accepts the same option as its third argument.
+
+### Per-query
+
 For explicit per-query comments, use Kysely's `$call` helper API:
 
 ```ts

@@ -43,6 +43,14 @@ describe(`${SqlComment.name}`, () => {
       }).serialize()
     ).to.equal(`/*a='1',c='1',d='false'*/`)
   })
+  it('supports unquoted values', () => {
+    expect(
+      new SqlComment(
+        { action: 'get', controller: 'person' },
+        { quoteValues: false }
+      ).serialize()
+    ).to.equal(`/*action=get,controller=person*/`)
+  })
   it('merge removes values overwritten with nullish values', () => {
     expect(
       new SqlComment({ a: '1', b: '1' })
@@ -64,7 +72,13 @@ describe(`${serializeValue.name}`, () => {
     expect(serializeValue(`/param first`)).to.equal(`'%2Fparam%20first'`)
     expect(serializeValue(`1234`)).to.equal(`'1234'`)
   })
+  it('unquoted', () => {
+    expect(serializeValue(`DROP TABLE FOO`, { quoteValues: false })).to.equal(
+      `DROP%20TABLE%20FOO`
+    )
+  })
   it('meta-chars', () => {
+    expect(serializeValue(`'DROP'`, { quoteValues: false })).to.equal("\\'DROP\\'")
     expect(serializeValue(`'DROP'`)).to.equal(`'\\'DROP\\''`)
   })
 })

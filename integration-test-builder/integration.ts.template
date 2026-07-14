@@ -37,6 +37,29 @@ if (compiled.sql !== expected) {
 
 console.log(compiled.sql)
 
+const unquotedDb = new Kysely<DB>({
+  dialect: new PostgresDialect({
+    pool: null as any,
+  }),
+  plugins: [new SqlCommenterPlugin(() => comment, { quoteValues: false })],
+})
+
+const unquotedCompiled = unquotedDb
+  .selectFrom('person')
+  .select(['id', 'first_name'])
+  .where('id', '=', '1')
+  .compile()
+
+const unquotedExpected = `select "id", "first_name" from "person" where "id" = $1 /*action=get,controller=person*/`
+
+if (unquotedCompiled.sql !== unquotedExpected) {
+  throw new Error(
+    `Expected ${JSON.stringify(unquotedExpected)}, received ${JSON.stringify(unquotedCompiled.sql)}`
+  )
+}
+
+console.log(unquotedCompiled.sql)
+
 const helperDb = new Kysely<DB>({
   dialect: new PostgresDialect({
     pool: null as any,
@@ -58,3 +81,19 @@ if (helperCompiled.sql !== helperExpected) {
 }
 
 console.log(helperCompiled.sql)
+
+const helperUnquotedCompiled = helperDb
+  .selectFrom('person')
+  .select(['id', 'first_name'])
+  .$call((qb) => sqlCommenter(qb, comment, { quoteValues: false }))
+  .compile()
+
+const helperUnquotedExpected = `select "id", "first_name" from "person" /*action=get,controller=person*/`
+
+if (helperUnquotedCompiled.sql !== helperUnquotedExpected) {
+  throw new Error(
+    `Expected ${JSON.stringify(helperUnquotedExpected)}, received ${JSON.stringify(helperUnquotedCompiled.sql)}`
+  )
+}
+
+console.log(helperUnquotedCompiled.sql)

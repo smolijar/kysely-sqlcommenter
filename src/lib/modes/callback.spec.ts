@@ -34,6 +34,25 @@ describe('callback', () => {
       `select "id", "first_name" from "person" where "id" = $1 /*action='get',controller='person'*/`
     )
   })
+  it('supports unquoted values', async () => {
+    const db = testingKysely(
+      new SqlCommenterPlugin(
+        () => ({
+          controller: 'person',
+          action: 'get',
+        }),
+        { quoteValues: false }
+      )
+    )
+    const { sql } = db
+      .selectFrom('person')
+      .select(['id', 'first_name'])
+      .where('id', '=', '1')
+      .compile()
+    expect(sql).toBe(
+      `select "id", "first_name" from "person" where "id" = $1 /*action=get,controller=person*/`
+    )
+  })
   it('update', async () => {
     const db = testingKysely(
       new SqlCommenterPlugin(() => ({
