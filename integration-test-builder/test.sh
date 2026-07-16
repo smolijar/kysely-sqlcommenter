@@ -17,10 +17,16 @@ pnpm --dir "$ROOT_DIR" pack --pack-destination "$TMP_DIR"
 tarball="$(basename "$TMP_DIR"/kysely-sqlcommenter-*.tgz)"
 
 cd "$TMP_DIR"
-cat > .npmrc <<'NPMRC'
-minimum-release-age=10080
-minimum-release-age-strict=true
-NPMRC
+cat > pnpm-workspace.yaml <<'YAML'
+packages:
+  - .
+
+minimumReleaseAge: 10080
+minimumReleaseAgeStrict: true
+
+allowBuilds:
+  esbuild: true
+YAML
 cat > package.json <<'JSON'
 {
   "name": "kysely-sqlcommenter-smoke",
