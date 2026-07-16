@@ -77,6 +77,9 @@ const db = new Kysely<DB>({
 This emits `/*action=list*/`, which is intentionally not sqlcommenter-spec compliant.
 The explicit `sqlCommenter` helper accepts the same option as its third argument.
 
+#### Preview
+![](https://i.imgur.com/NcDPdY7.png)
+
 ### Per-query
 
 For explicit per-query comments, use Kysely's `$call` helper API:
